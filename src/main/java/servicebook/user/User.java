@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import servicebook.user.confirmation.EmailConfirmation;
+
 @Getter
 @Setter
 @ToString
@@ -39,4 +41,7 @@ public class User {
      */
     @Column(name = "password_hash")
     private String password;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private EmailConfirmation emailConfirmation;
 }

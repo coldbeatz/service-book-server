@@ -1,0 +1,12 @@
+<h2 th:text="'Hello, ' + ${name} + '!'" style="color: black;"></h2>
+
+<p>
+    <span th:text="'Thank you for registering on our platform.'" style="color: black;"></span>
+    <br>
+    <span th:text="' To confirm your registration, follow the link: '" style="color: black;"></span>
+    <a th:text="${link}" th:href="${link}"></a>
+</p>
+
+<p style="color: grey; font-size: 12px; font-style: italic;">
+    If you did not register, please ignore this message.
+</p>
