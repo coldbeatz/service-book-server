@@ -1,9 +1,6 @@
 package servicebook.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,15 +19,24 @@ public class User {
     /**
      * Електронна адреса при реєстрації
      */
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    /**
+     * Чи підтверджено e-mail
+     */
+    @Column(name = "confirm_email", nullable = false)
+    private boolean confirmEmail;
 
     /**
      * ФІО користувача
      */
+    @Column(name = "full_name")
     private String fullName;
 
     /**
-     * Пароль
+     * Хеш пароля BCrypt
      */
+    @Column(name = "password_hash")
     private String password;
 }
