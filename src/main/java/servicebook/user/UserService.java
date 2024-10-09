@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -19,6 +20,8 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
+    @Value("${app.frontend.url}") private String frontendUrl;
 
     private final UserRepository userRepository;
 
@@ -58,14 +61,17 @@ public class UserService {
         user.setPassword(encodedPassword);
 
         userRepository.save(user);
+        sendConfirmationEmail(user);
+    }
 
+    private void sendConfirmationEmail(User user) {
         EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user);
 
         try {
             Context context = new Context();
 
             context.setVariable("name", user.getFullName());
-            context.setVariable("link", "http://localhost:4200/login?key=" + emailConfirmation.getUniqueKey());
+            context.setVariable("link", frontendUrl + "/confirmation/" + emailConfirmation.getUniqueKey());
 
             emailService.sendTemplateMessage(user.getEmail(), "Email confirmation", "email-validation-template", context);
         } catch (MessagingException e) {

@@ -17,14 +17,11 @@ import java.time.LocalDateTime;
 @Entity(name = "email_confirmations")
 public class EmailConfirmation {
 
-    @Getter(value = AccessLevel.NONE)
-    @Setter(value = AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "id", nullable = false, unique = true)
     private long id;
 
-    @MapsId
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;

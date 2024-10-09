@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/confirmation")
-@CrossOrigin(origins = "http://localhost:4200")
 public class EmailConfirmationController {
 
     private final EmailConfirmationService emailConfirmationService;

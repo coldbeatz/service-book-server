@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import servicebook.user.User;
 import servicebook.user.UserRepository;
 
@@ -27,6 +29,7 @@ public class EmailConfirmationService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public boolean confirmEmail(String key) {
         Optional<EmailConfirmation> find = emailConfirmationRepository.findByUniqueKey(key);
 
@@ -34,6 +37,8 @@ public class EmailConfirmationService {
             EmailConfirmation confirmation = find.get();
 
             User user = confirmation.getUser();
+
+            user.setEmailConfirmation(null);
             user.setConfirmEmail(true);
 
             userRepository.save(user);
