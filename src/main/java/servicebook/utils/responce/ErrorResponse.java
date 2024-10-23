@@ -1,4 +1,4 @@
-package servicebook.utils;
+package servicebook.utils.responce;
 
 import lombok.Getter;
 import lombok.Setter;

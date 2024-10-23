@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import servicebook.user.confirmation.request.ConfirmationRequest;
 
-import servicebook.utils.ErrorResponse;
+import servicebook.utils.responce.ErrorResponse;
 
 import java.util.Map;
 
