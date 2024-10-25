@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import servicebook.user.confirmation.request.ConfirmationRequest;
+import servicebook.requests.confirmation.ConfirmationRequest;
 
 import servicebook.utils.responce.ErrorResponse;
 

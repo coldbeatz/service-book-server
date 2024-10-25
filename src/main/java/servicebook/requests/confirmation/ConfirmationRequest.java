@@ -1,4 +1,4 @@
-package servicebook.user.confirmation.request;
+package servicebook.requests.confirmation;
 
 import lombok.Getter;
 import lombok.Setter;

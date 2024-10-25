@@ -11,11 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 
-import static org.thymeleaf.util.StringUtils.isEmpty;
-
+import org.thymeleaf.util.StringUtils;
 import servicebook.exceptions.ClientException;
 
-import servicebook.mail.EmailService;
+import servicebook.services.mail.EmailService;
 
 import java.util.Optional;
 
@@ -31,23 +30,13 @@ public class UserService {
 
     @Autowired
     public UserService(UserRepository userRepository, EmailService emailService) {
+
         this.userRepository = userRepository;
         this.emailService = emailService;
     }
 
-    public void restore(String email) throws ClientException, MessagingException {
-        Optional<User> find = userRepository.findByEmail(email);
-
-        if (find.isEmpty()) {
-            throw new ClientException("email_not_registered", "Email is invalid");
-        }
-
-        User user = find.get();
-        emailService.sendRestoreEmail(user);
-    }
-
     public void register(User user) throws ClientException, MessagingException {
-        if (isEmpty(user.getEmail()) || isEmpty(user.getPassword()) || isEmpty(user.getFullName())) {
+        if (StringUtils.isEmpty(user.getEmail()) || StringUtils.isEmpty(user.getPassword()) || StringUtils.isEmpty(user.getFullName())) {
             throw new ClientException("empty_fields", "Empty fields are not allowed");
         }
 
@@ -76,6 +65,11 @@ public class UserService {
 
         userRepository.save(user);
         emailService.sendRegistrationConfirmationEmail(user);
+    }
+
+    public void setPassword(User user, String password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
     }
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {

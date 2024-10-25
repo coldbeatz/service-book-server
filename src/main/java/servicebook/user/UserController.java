@@ -25,25 +25,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/restore")
-    public ResponseEntity<?> restore(@RequestBody String email) {
-        try {
-            System.out.println(email);
-            userService.restore(email);
-
-            return ResponseEntity.ok(new SuccessResponse());
-        } catch (ClientException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(e.getCode()));
-        } catch (MessagingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("error_send_mail"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse());
-        }
-    }
-
     @PostMapping(value = "/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {

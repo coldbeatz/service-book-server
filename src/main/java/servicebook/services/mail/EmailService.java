@@ -1,4 +1,4 @@
-package servicebook.mail;
+package servicebook.services.mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
