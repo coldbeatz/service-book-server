@@ -50,7 +50,7 @@ public class EmailConfirmationService {
     }
 
     public EmailConfirmation createEmailConfirmation(User user) {
-        Optional<EmailConfirmation> find = emailConfirmationRepository.findById(user.getId());
+        Optional<EmailConfirmation> find = emailConfirmationRepository.findByUser(user);
 
         EmailConfirmation confirmation;
 
