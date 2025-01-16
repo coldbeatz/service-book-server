@@ -6,7 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import servicebook.user.confirmation.EmailConfirmation;
+import servicebook.user.role.Role;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -41,6 +47,21 @@ public class User {
      */
     @Column(name = "password_hash")
     private String password;
+
+    /**
+     * Тип (роль) користувача
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private EmailConfirmation emailConfirmation;
