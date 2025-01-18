@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import servicebook.resources.Resource;
 
 @Getter
 @Setter
@@ -30,4 +31,10 @@ public class CarBrand {
     @JoinColumn(name = "country")
     private Country country;
 
+    /**
+     * Ресурс зображення
+     */
+    @OneToOne
+    @JoinColumn(name = "image_resource")
+    private Resource imageResource;
 }

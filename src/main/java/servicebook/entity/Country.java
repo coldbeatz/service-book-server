@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import servicebook.localization.LocalizedString;
+import servicebook.resources.Resource;
 
 @Getter
 @Setter
@@ -34,4 +35,11 @@ public class Country {
     @OneToOne
     @JoinColumn(name = "name_id")
     private LocalizedString name;
+
+    /**
+     * Ресурс іконки (використовується на сайті)
+     */
+    @OneToOne
+    @JoinColumn(name = "icon_resource")
+    private Resource iconResource;
 }

@@ -1,5 +1,6 @@
 package servicebook.resources;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Entity(name = "resources")
 public class Resource {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
@@ -30,13 +32,15 @@ public class Resource {
     /**
      * Дата завантаження ресурса
      */
+    @JsonIgnore
     @Column(name = "upload_date")
     private LocalDateTime uploadDate;
 
     /**
      * Користувач, який завантажив ресурс
      */
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 }
