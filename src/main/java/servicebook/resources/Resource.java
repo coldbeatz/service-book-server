@@ -1,6 +1,7 @@
 package servicebook.resources;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -43,4 +44,14 @@ public class Resource {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public static Resource createResource(String fileName, User user) {
+        Resource resource = new Resource();
+
+        resource.setUrl(fileName);
+        resource.setUser(user);
+        resource.setUploadDate(LocalDateTime.now());
+
+        return resource;
+    }
 }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,7 @@ import servicebook.requests.login.LoginRequest;
 import servicebook.requests.login.TokenValidationRequest;
 import servicebook.response.LoginResponse;
 
-import servicebook.services.JwtService;
+import servicebook.services.jwt.JwtService;
 
 import servicebook.user.User;
 import servicebook.user.UserService;
@@ -33,10 +35,13 @@ public class LoginController {
 
     private final JwtService jwtService;
 
+    private final AuthenticationManager authenticationManager;
+
     @Autowired
-    public LoginController(UserService userService, JwtService jwtService) {
+    public LoginController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/validation")
@@ -71,6 +76,7 @@ public class LoginController {
                 throw new ClientException("incorrect_login_or_password", "Incorrect login or password");
             }
 
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             String token = jwtService.generateToken(user);
 
             return ResponseEntity.ok(new LoginResponse(token));

@@ -1,4 +1,4 @@
-package servicebook.services;
+package servicebook.services.jwt;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,6 +29,27 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+
+    public String extractUserEmail(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("email", String.class);
+    }
+
+    /**
+     * Вилучення всіх даних з токена
+     *
+     * @param token токен
+     * @return дані
+     */
+    private Claims extractAllClaims(String token) {
+        SecretKey key = getSecretKey();
+
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 
     /**
      * Генерація токена
