@@ -2,7 +2,6 @@ package servicebook.controllers;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +24,12 @@ import servicebook.services.upload.FileUploadStatus;
 
 import servicebook.user.User;
 
-import servicebook.utils.responce.ErrorResponse;
 import servicebook.utils.responce.ResponseUtil;
 import servicebook.utils.responce.SuccessResponse;
 
 import java.io.IOException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.Optional;
@@ -48,6 +47,58 @@ public class CarBrandController extends BaseController {
 
     private final FileUploadService fileUploadService;
 
+    @PostMapping("/edit")
+    public ResponseEntity<?> createBrand(@RequestParam("id") String brandId,
+                                         @RequestParam("brand") String brand,
+                                         @RequestParam(value = "countryId", required = false) String countryId,
+                                         @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            User user = getAuthenticatedUser();
+
+            Optional<CarBrand> carBrandOptional = carBrandRepository.findById(Long.parseLong(brandId));
+            if (carBrandOptional.isEmpty()) {
+                return ResponseUtil.error("car_brand_not_found");
+            }
+
+            CarBrand carBrand = carBrandOptional.get();
+            Resource resource = carBrand.getImageResource();
+
+            if (file != null && !file.isEmpty()) {
+                FileUploadResponse result = fileUploadService.uploadFileToExternalHost(file);
+                FileUploadStatus status = result.getStatus();
+
+                if (status != FileUploadStatus.SUCCESS) {
+                    return ResponseUtil.error("resource_loading_error");
+                }
+
+                if (resource != null) {
+                    resource.setUrl(result.getFileName());
+                    resource.setUser(user);
+                    resource.setUploadDate(LocalDateTime.now());
+                } else {
+                    resource = Resource.createResource(result.getFileName(), user);
+                }
+
+                resourceRepository.save(resource);
+            }
+
+            Country country = null;
+            if (countryId != null) {
+                country = countryRepository.findById(Long.parseLong(countryId)).orElse(null);
+            }
+
+            carBrand.setBrand(brand);
+            carBrand.setCountry(country);
+            carBrand.setImageResource(resource);
+
+            carBrandRepository.save(carBrand);
+
+            return ResponseEntity.ok(new SuccessResponse());
+        } catch (IOException e) {
+            return ResponseUtil.error();
+        }
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createBrand(@RequestParam("brand") String brand,
                                          @RequestParam(value = "countryId", required = false) String countryId,
@@ -62,26 +113,28 @@ public class CarBrandController extends BaseController {
                 Resource resource = Resource.createResource(result.getFileName(), user);
                 resourceRepository.save(resource);
 
-                long longId = Long.parseLong(countryId);
-                Optional<Country> country = countryRepository.findById(longId);
+                Country country = null;
+                if (countryId != null) {
+                    country = countryRepository.findById(Long.parseLong(countryId)).orElse(null);
+                }
 
                 CarBrand carBrand = new CarBrand();
 
                 carBrand.setBrand(brand);
-                carBrand.setCountry(country.orElse(null));
+                carBrand.setCountry(country);
                 carBrand.setImageResource(resource);
 
                 carBrandRepository.save(carBrand);
             } else {
                 throw new ClientException("resource_loading_error", "Error loading resource to remote hosting");
             }
+
+            return ResponseEntity.ok(new SuccessResponse());
         } catch (IOException e) {
             return ResponseUtil.error();
         } catch (ClientException e) {
             return ResponseUtil.error(e);
         }
-
-        return ResponseEntity.ok(new SuccessResponse());
     }
 
     @GetMapping("/countries")
@@ -92,6 +145,21 @@ public class CarBrandController extends BaseController {
                     .collect(Collectors.toList());
 
             return ResponseUtil.success(countries);
+        } catch (Exception e) {
+            return ResponseUtil.error();
+        }
+    }
+
+    @GetMapping("/find/{id}")
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+        try {
+            Optional<CarBrand> carBrand = carBrandRepository.findById(id);
+
+            if (carBrand.isPresent()) {
+                return ResponseUtil.success(carBrand.get());
+            }
+
+            return ResponseUtil.error("car_brand_not_found");
         } catch (Exception e) {
             return ResponseUtil.error();
         }
