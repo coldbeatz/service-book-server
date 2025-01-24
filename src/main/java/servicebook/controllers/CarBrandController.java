@@ -48,7 +48,7 @@ public class CarBrandController extends BaseController {
     private final FileUploadService fileUploadService;
 
     @PostMapping("/edit")
-    public ResponseEntity<?> createBrand(@RequestParam("id") String brandId,
+    public ResponseEntity<?> updateBrand(@RequestParam("id") String brandId,
                                          @RequestParam("brand") String brand,
                                          @RequestParam(value = "countryId", required = false) String countryId,
                                          @RequestParam(value = "file", required = false) MultipartFile file) {

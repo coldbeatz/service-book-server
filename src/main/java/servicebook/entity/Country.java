@@ -12,10 +12,10 @@ import servicebook.resources.Resource;
 @Getter
 @Setter
 @ToString
-@Entity(name = "countries")
+@Entity
 @Table(indexes = {
     @Index(columnList = "code")
-})
+}, name = "countries")
 public class Country {
 
     @Id

@@ -5,12 +5,17 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import servicebook.resources.Resource;
 
 @Getter
 @Setter
 @ToString
-@Entity(name = "car_brands")
+@Entity
+@Table(indexes = {
+    @Index(columnList = "brand")
+}, name = "car_brands")
+
 public class CarBrand {
 
     @Id
@@ -21,7 +26,7 @@ public class CarBrand {
     /**
      * Марка автомобіля
      */
-    @Column(name = "brand")
+    @Column(name = "brand", nullable = false, unique = true)
     private String brand;
 
     /**

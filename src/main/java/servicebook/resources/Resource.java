@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@Entity(name = "resources")
+@Entity
+@Table(name = "resources")
 public class Resource {
 
     @JsonIgnore
