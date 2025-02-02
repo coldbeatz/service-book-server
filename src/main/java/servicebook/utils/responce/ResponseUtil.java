@@ -19,6 +19,10 @@ public class ResponseUtil {
         return ResponseEntity.status(status).body(new ErrorResponse(code));
     }
 
+    public static ResponseEntity<ErrorResponse> badRequest() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("bad_request"));
+    }
+
     public static ResponseEntity<ErrorResponse> error(String code) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(code));
     }

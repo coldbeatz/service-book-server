@@ -1,6 +1,7 @@
 package servicebook.localization;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,6 +24,20 @@ public class LocalizedString {
 
     @Column(name = "ua", length = 2048)
     private String ua;
+
+    public static LocalizedString create(String en, String ua) {
+        LocalizedString localizedString = new LocalizedString();
+
+        localizedString.setEn(en);
+        localizedString.setUa(ua);
+
+        return localizedString;
+    }
+
+    public void update(String en, String ua) {
+        this.en = en;
+        this.ua = ua;
+    }
 
     @Override
     public boolean equals(Object o) {

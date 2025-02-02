@@ -1,5 +1,11 @@
 package servicebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+/**
+ * Тип трансмісій автомобіля
+ */
 public enum CarTransmissionType {
     /**
      * Механічна коробка передач
@@ -29,5 +35,18 @@ public enum CarTransmissionType {
     /**
      * Інша трансмісія
      */
-    OTHER
+    OTHER;
+
+    @JsonValue
+    public int toOrdinal() {
+        return this.ordinal();
+    }
+
+    @JsonCreator
+    public static CarTransmissionType fromOrdinal(int ordinal) {
+        if (ordinal < 0 || ordinal >= values().length) {
+            throw new IllegalArgumentException("Invalid ordinal for CarTransmissionType: " + ordinal);
+        }
+        return values()[ordinal];
+    }
 }
