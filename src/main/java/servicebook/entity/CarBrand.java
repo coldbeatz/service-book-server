@@ -2,21 +2,22 @@ package servicebook.entity;
 
 import jakarta.persistence.*;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import servicebook.resources.Resource;
 
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(indexes = {
     @Index(columnList = "brand")
 }, name = "car_brands")
 
-public class CarBrand {
+public class CarBrand extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +40,7 @@ public class CarBrand {
     /**
      * Ресурс зображення
      */
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_resource")
     private Resource imageResource;
 }

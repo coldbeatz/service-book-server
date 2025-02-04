@@ -1,7 +1,10 @@
 package servicebook.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -11,12 +14,11 @@ import servicebook.entity.CarBrand;
 import servicebook.entity.Country;
 
 import servicebook.exceptions.ClientException;
-import servicebook.repository.CarBrandRepository;
-import servicebook.repository.CountryRepository;
-
-import servicebook.repository.ResourceRepository;
 
 import servicebook.resources.Resource;
+
+import servicebook.services.CarBrandService;
+import servicebook.services.CountryService;
 
 import servicebook.services.upload.FileUploadResponse;
 import servicebook.services.upload.FileUploadService;
@@ -25,42 +27,52 @@ import servicebook.services.upload.FileUploadStatus;
 import servicebook.user.User;
 
 import servicebook.utils.responce.ResponseUtil;
-import servicebook.utils.responce.SuccessResponse;
 
 import java.io.IOException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 @RestController
 @RequestMapping("admin/brands")
 @RequiredArgsConstructor
 public class CarBrandController extends BaseController {
 
-    private final CarBrandRepository carBrandRepository;
-    private final CountryRepository countryRepository;
-    private final ResourceRepository resourceRepository;
+    private final CarBrandService carBrandService;
+    private final CountryService countryService;
 
     private final FileUploadService fileUploadService;
 
-    @PostMapping("/edit")
-    public ResponseEntity<?> updateBrand(@RequestParam("id") String brandId,
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+        try {
+            CarBrand carBrand = carBrandService.findById(id);
+
+            return ResponseUtil.success(carBrand);
+        } catch (EntityNotFoundException e) {
+            return ResponseUtil.error(HttpStatus.NOT_FOUND, "car_brand_not_found");
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllBrands() {
+        try {
+            List<CarBrand> carBrands = carBrandService.getAll();
+            return ResponseUtil.success(carBrands);
+        } catch (Exception e) {
+            return ResponseUtil.error();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBrand(@PathVariable Long id,
                                          @RequestParam("brand") String brand,
-                                         @RequestParam(value = "countryId", required = false) String countryId,
+                                         @RequestParam(value = "countryId", required = false) Long countryId,
                                          @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             User user = getAuthenticatedUser();
 
-            Optional<CarBrand> carBrandOptional = carBrandRepository.findById(Long.parseLong(brandId));
-            if (carBrandOptional.isEmpty()) {
-                return ResponseUtil.error("car_brand_not_found");
-            }
-
-            CarBrand carBrand = carBrandOptional.get();
+            CarBrand carBrand = carBrandService.findById(id);
             Resource resource = carBrand.getImageResource();
 
             if (file != null && !file.isEmpty()) {
@@ -77,32 +89,32 @@ public class CarBrandController extends BaseController {
                     resource.setUploadDate(LocalDateTime.now());
                 } else {
                     resource = Resource.createResource(result.getFileName(), user);
+                    carBrand.setImageResource(resource);
                 }
-
-                resourceRepository.save(resource);
             }
 
             Country country = null;
             if (countryId != null) {
-                country = countryRepository.findById(Long.parseLong(countryId)).orElse(null);
+                country = countryService.getById(countryId);
             }
 
             carBrand.setBrand(brand);
             carBrand.setCountry(country);
-            carBrand.setImageResource(resource);
 
-            carBrandRepository.save(carBrand);
+            carBrandService.saveOrUpdate(carBrand);
 
-            return ResponseEntity.ok(new SuccessResponse());
+            return ResponseEntity.ok(carBrand);
         } catch (IOException e) {
             return ResponseUtil.error();
+        } catch (EntityNotFoundException e) {
+            return ResponseUtil.error(HttpStatus.NOT_FOUND, "car_brand_not_found");
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createBrand(@RequestParam("brand") String brand,
-                                         @RequestParam(value = "countryId", required = false) String countryId,
-                                         @RequestParam("file") MultipartFile file) {
+    @PostMapping
+    public ResponseEntity<?> saveBrand(@RequestParam("brand") String brand,
+                                       @RequestParam(value = "countryId", required = false) Long countryId,
+                                       @RequestParam("file") MultipartFile file) {
         try {
             User user = getAuthenticatedUser();
 
@@ -111,70 +123,28 @@ public class CarBrandController extends BaseController {
 
             if (status == FileUploadStatus.SUCCESS) {
                 Resource resource = Resource.createResource(result.getFileName(), user);
-                resourceRepository.save(resource);
 
                 Country country = null;
                 if (countryId != null) {
-                    country = countryRepository.findById(Long.parseLong(countryId)).orElse(null);
+                    country = countryService.getById(countryId);
                 }
 
-                CarBrand carBrand = new CarBrand();
+                CarBrand carBrand = CarBrand.builder()
+                        .brand(brand)
+                        .country(country)
+                        .imageResource(resource)
+                        .build();
 
-                carBrand.setBrand(brand);
-                carBrand.setCountry(country);
-                carBrand.setImageResource(resource);
+                carBrandService.saveOrUpdate(carBrand);
 
-                carBrandRepository.save(carBrand);
+                return ResponseEntity.ok(carBrand);
             } else {
                 throw new ClientException("resource_loading_error", "Error loading resource to remote hosting");
             }
-
-            return ResponseEntity.ok(new SuccessResponse());
         } catch (IOException e) {
             return ResponseUtil.error();
         } catch (ClientException e) {
             return ResponseUtil.error(e);
-        }
-    }
-
-    @GetMapping("/countries")
-    public ResponseEntity<?> getAllCountries() {
-        try {
-            List<Country> countries = StreamSupport
-                    .stream(countryRepository.findAll().spliterator(), false)
-                    .collect(Collectors.toList());
-
-            return ResponseUtil.success(countries);
-        } catch (Exception e) {
-            return ResponseUtil.error();
-        }
-    }
-
-    @GetMapping("/find/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
-        try {
-            Optional<CarBrand> carBrand = carBrandRepository.findById(id);
-
-            if (carBrand.isPresent()) {
-                return ResponseUtil.success(carBrand.get());
-            }
-
-            return ResponseUtil.error("car_brand_not_found");
-        } catch (Exception e) {
-            return ResponseUtil.error();
-        }
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<?> all() {
-        try {
-            List<CarBrand> carBrands = StreamSupport
-                    .stream(carBrandRepository.findAll().spliterator(), false)
-                    .collect(Collectors.toList());
-
-            return ResponseUtil.success(carBrands);
-        } catch (Exception e) {
-            return ResponseUtil.error();
         }
     }
 }
