@@ -1,5 +1,6 @@
 package servicebook.exceptions.handler;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -17,12 +18,22 @@ import servicebook.utils.responce.ErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String ENTITY_NOT_FOUND_CODE = "entity_not_found";
+
     /**
      * Обробляє виняток {@link DuplicateEntityException} і повертає HTTP 409 (Conflict).
      */
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<String> handleDuplicateEntityException(DuplicateEntityException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    /**
+     * Обробляє виняток {@link EntityNotFoundException} і повертає HTTP 404 (Not Found).
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ENTITY_NOT_FOUND_CODE);
     }
 
     /**

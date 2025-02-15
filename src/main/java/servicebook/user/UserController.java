@@ -2,39 +2,55 @@ package servicebook.user;
 
 import jakarta.mail.MessagingException;
 
-import org.apache.commons.validator.routines.EmailValidator;
+import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.util.StringUtils;
+
 import org.springframework.web.bind.annotation.*;
+
+import servicebook.controllers.BaseController;
 
 import servicebook.exceptions.ClientException;
 
+import servicebook.requests.UserSettingsRequest;
+import servicebook.response.LoginResponse;
+
+import servicebook.response.SettingsResponse;
+import servicebook.services.jwt.JwtService;
 import servicebook.services.mail.EmailService;
+
 import servicebook.utils.responce.ErrorResponse;
 import servicebook.utils.responce.SuccessResponse;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/user")
-public class UserController {
+public class UserController extends BaseController {
 
     private final UserService userService;
     private final EmailService emailService;
+
+    private final JwtService jwtService;
 
     private final UserRepository userRepository;
 
     private final EmailValidator emailValidator = EmailValidator.getInstance();
 
-    @Autowired
-    public UserController(UserService userService, UserRepository userRepository, EmailService emailService) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.emailService = emailService;
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/me")
+    public ResponseEntity<User> getAuthUser() {
+        User user = getAuthenticatedUser();
+
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping(value = "/register")

@@ -30,4 +30,10 @@ public class EmailConfirmation {
 
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
+
+    /**
+     * Бажаний e-mail, nullable тому-що при реєстрації це не потрібно, а при зміні - потрібно
+     */
+    @Column(name = "desired_email", unique = true)
+    private String desiredEmail;
 }

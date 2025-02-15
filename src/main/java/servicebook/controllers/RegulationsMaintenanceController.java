@@ -1,10 +1,7 @@
 package servicebook.controllers;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +16,8 @@ import servicebook.localization.LocalizedString;
 import servicebook.requests.LocalizedRequest;
 import servicebook.requests.RegulationsMaintenanceRequest;
 import servicebook.requests.RegulationsMaintenanceTaskRequest;
-import servicebook.services.RegulationsMaintenanceService;
 
-import servicebook.utils.responce.ResponseUtil;
+import servicebook.services.RegulationsMaintenanceService;
 
 import java.util.List;
 
@@ -40,7 +36,9 @@ public class RegulationsMaintenanceController extends BaseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveRegulationsMaintenance(@RequestBody RegulationsMaintenanceRequest request) {
+    public ResponseEntity<RegulationsMaintenance> save(
+            @RequestBody RegulationsMaintenanceRequest request) {
+
         RegulationsMaintenance maintenance = new RegulationsMaintenance();
 
         maintenance.setWorkDescription(new LocalizedString());
@@ -54,20 +52,17 @@ public class RegulationsMaintenanceController extends BaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRegulationsMaintenance(@PathVariable Long id,
-                                                          @RequestBody RegulationsMaintenanceRequest request) {
-        try {
-            RegulationsMaintenance maintenance = maintenanceService.getById(id);
-            buildRegulationsMaintenance(request, maintenance);
+    public ResponseEntity<RegulationsMaintenance> update(
+            @PathVariable Long id, @RequestBody RegulationsMaintenanceRequest request) {
 
-            maintenance.setUpdatedBy(getAuthenticatedUser());
+        RegulationsMaintenance maintenance = maintenanceService.getById(id);
+        buildRegulationsMaintenance(request, maintenance);
 
-            maintenanceService.saveOrUpdate(maintenance);
+        maintenance.setUpdatedBy(getAuthenticatedUser());
 
-            return ResponseEntity.ok(maintenance);
-        } catch (EntityNotFoundException e) {
-            return ResponseUtil.error(HttpStatus.NOT_FOUND, "regulations_maintenance_not_found");
-        }
+        maintenanceService.saveOrUpdate(maintenance);
+
+        return ResponseEntity.ok(maintenance);
     }
 
     private void buildRegulationsMaintenance(RegulationsMaintenanceRequest request, RegulationsMaintenance maintenance) {

@@ -73,8 +73,8 @@ public class EmailService {
     /**
      * Повідомлення підтвердження реєстрації
      */
-    public void sendRegistrationConfirmationEmail(User user) throws MessagingException {
-        EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user);
+    public void sendRegistrationConfirmationEmail(User user, String desiredEmail) throws MessagingException {
+        EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user, desiredEmail);
 
         Context context = new Context();
 
@@ -84,14 +84,18 @@ public class EmailService {
         String subject = "Email confirmation";
         String template = "email-validation-template";
 
-        sendTemplateMessage(user.getEmail(), subject, template, context);
+        sendTemplateMessage(desiredEmail, subject, template, context);
+    }
+
+    public void sendRegistrationConfirmationEmail(User user) throws MessagingException {
+        sendRegistrationConfirmationEmail(user, user.getEmail());
     }
 
     /**
      * Повідомлення відновлення доступу до аккаунту
      */
     public void sendRestoreEmail(User user) throws MessagingException {
-        EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user);
+        EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user, user.getEmail());
 
         Context context = new Context();
 
