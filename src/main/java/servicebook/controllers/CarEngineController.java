@@ -38,11 +38,11 @@ public class CarEngineController extends BaseController {
         return ResponseUtil.success(Collections.emptyList());
     }*/
 
-    @GetMapping
-    public ResponseEntity<?> getEngineById(@RequestParam("engine") Long engineId) {
-        CarEngine engine = carEngineService.getEngineById(engineId);
+    @GetMapping("/{id}")
+    public ResponseEntity<CarEngine> findById(@PathVariable("id") Long id) {
+        CarEngine engine = carEngineService.getEngineById(id);
 
-        return engine != null ? ResponseUtil.success(engine) : ResponseUtil.error();
+        return ResponseEntity.ok(engine);
     }
 
     @PostMapping("/update")

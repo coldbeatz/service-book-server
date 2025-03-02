@@ -104,8 +104,6 @@ public class CarBrandController extends BaseController {
             carBrandService.saveOrUpdate(carBrand);
 
             return ResponseEntity.ok(carBrand);
-        } catch (IOException e) {
-            return ResponseUtil.error();
         } catch (EntityNotFoundException e) {
             return ResponseUtil.error(HttpStatus.NOT_FOUND, "car_brand_not_found");
         }
@@ -141,8 +139,6 @@ public class CarBrandController extends BaseController {
             } else {
                 throw new ClientException("resource_loading_error", "Error loading resource to remote hosting");
             }
-        } catch (IOException e) {
-            return ResponseUtil.error();
         } catch (ClientException e) {
             return ResponseUtil.error(e);
         }

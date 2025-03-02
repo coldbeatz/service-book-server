@@ -16,6 +16,7 @@ import servicebook.services.NewsService;
 
 import servicebook.utils.responce.ResponseUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,14 @@ public class NewsController extends BaseController {
         List<News> newsList = newsService.getAll();
 
         return ResponseEntity.ok(newsList);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        News news = newsService.getById(id);
+        newsService.delete(news);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping
@@ -61,6 +70,8 @@ public class NewsController extends BaseController {
         buildNews(request, news);
 
         news.setUpdatedBy(getAuthenticatedUser());
+        news.setUpdatedAt(LocalDateTime.now());
+
         newsService.saveOrUpdate(news);
 
         return ResponseEntity.ok(news);

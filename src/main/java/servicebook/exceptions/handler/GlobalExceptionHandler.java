@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import servicebook.exceptions.ClientException;
 import servicebook.exceptions.DuplicateEntityException;
 
+import servicebook.exceptions.RemoteFileUploadException;
 import servicebook.utils.responce.ErrorResponse;
 
 /**
@@ -19,9 +20,19 @@ import servicebook.utils.responce.ErrorResponse;
 public class GlobalExceptionHandler {
 
     private static final String ENTITY_NOT_FOUND_CODE = "entity_not_found";
+    private static final String FILE_UPLOAD_FAILED_CODE = "file_upload_failed";
 
     /**
-     * Обробляє виняток {@link DuplicateEntityException} і повертає HTTP 409 (Conflict).
+     * Обробляє виняток {@link RemoteFileUploadException}.
+     * Це може бути викликано помилкою при завантаженні файлу на зовнішній ресурс
+     */
+    @ExceptionHandler(RemoteFileUploadException.class)
+    public ResponseEntity<String> handleRemoteFileUploadException(RemoteFileUploadException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(FILE_UPLOAD_FAILED_CODE);
+    }
+
+    /**
+     * Обробляє виняток {@link DuplicateEntityException} і повертає HTTP 409 (Conflict)
      */
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<String> handleDuplicateEntityException(DuplicateEntityException ex) {
@@ -29,7 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Обробляє виняток {@link EntityNotFoundException} і повертає HTTP 404 (Not Found).
+     * Обробляє виняток {@link EntityNotFoundException} і повертає HTTP 404 (Not Found)
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {

@@ -1,21 +1,16 @@
 package servicebook.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import servicebook.entity.engine.CarEngine;
-import servicebook.resources.Resource;
-import servicebook.user.User;
 
-import java.time.LocalDateTime;
+import servicebook.entity.maintenance.converters.CarTransmissionTypeJsonConverter;
+
+import servicebook.resources.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +20,7 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "cars")
-public class Car {
+public class Car extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,22 +60,6 @@ public class Car {
     private Resource imageResource;
 
     /**
-     * Користувач, який додав автомобіль
-     */
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    /**
      * Двигуни автомобіля, що були у випуску
      */
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -89,9 +68,7 @@ public class Car {
     /**
      * Трансмісії автомобіля, які були у випуску
      */
-    @ElementCollection
-    @CollectionTable(name = "car_transmissions", joinColumns = @JoinColumn(name = "car_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "transmission")
+    @Column(name = "transmissions", columnDefinition = "json")
+    @Convert(converter = CarTransmissionTypeJsonConverter.class)
     private List<CarTransmissionType> transmissions = new ArrayList<>();
 }
