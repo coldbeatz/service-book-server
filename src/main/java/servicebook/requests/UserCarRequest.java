@@ -21,6 +21,7 @@ public class UserCarRequest {
     private int vehicleYear;
 
     private String vinCode;
+    private String licensePlate;
 
     private CarTransmissionType transmissionType;
     private FuelType fuelType;

@@ -10,6 +10,8 @@ import servicebook.entity.engine.FuelType;
 
 import servicebook.resources.Resource;
 
+import java.util.List;
+
 
 /**
  * Автомобіль користувача
@@ -24,7 +26,6 @@ import servicebook.resources.Resource;
 @Table(name = "user_cars", indexes = {
     @Index(name = "idx_vin_code", columnList = "vin_code")
 })
-
 public class UserCar extends AuditableEntity {
 
     @Id
@@ -60,8 +61,15 @@ public class UserCar extends AuditableEntity {
      */
     @NotBlank
     @Size(min = 10, max = 20)
-    @Column(name = "vin_code", nullable = false, unique = true)
+    @Column(name = "vin_code", nullable = false)
     private String vinCode;
+
+    /**
+     * Номерний знак автомобіля
+     */
+    @NotBlank
+    @Column(name = "license_plate", nullable = false)
+    private String licensePlate;
 
     /**
      * Тип трансмісії автомобіля (автомат, механіка, і т.д.)
@@ -90,4 +98,10 @@ public class UserCar extends AuditableEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_resource")
     private Resource imageResource;
+
+    /**
+     * Записи користувача до цього автомобіля
+     */
+    //@OneToMany(mappedBy = "userCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<UserCarNote> notes;
 }

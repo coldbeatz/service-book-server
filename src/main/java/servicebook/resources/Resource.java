@@ -32,6 +32,14 @@ public class Resource {
     private String url;
 
     /**
+     * Тип ресурса
+     * TODO
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ResourceType type;
+
+    /**
      * Дата завантаження ресурса
      */
     @JsonIgnore
@@ -46,10 +54,10 @@ public class Resource {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public static Resource createResource(String fileName, User user) {
+    public static Resource createResource(String fileURL, User user) {
         Resource resource = new Resource();
 
-        resource.setUrl(fileName);
+        resource.setUrl(fileURL);
         resource.setUser(user);
         resource.setUploadDate(LocalDateTime.now());
 

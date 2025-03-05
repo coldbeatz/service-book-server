@@ -1,17 +1,22 @@
 package servicebook.exceptions.handler;
 
 import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.security.access.AccessDeniedException;
+
 import servicebook.exceptions.ClientException;
 import servicebook.exceptions.DuplicateEntityException;
 
 import servicebook.exceptions.RemoteFileUploadException;
 import servicebook.utils.responce.ErrorResponse;
+
+import java.util.Map;
 
 /**
  * Глобальний обробник винятків для всієї програми
@@ -21,6 +26,18 @@ public class GlobalExceptionHandler {
 
     private static final String ENTITY_NOT_FOUND_CODE = "entity_not_found";
     private static final String FILE_UPLOAD_FAILED_CODE = "file_upload_failed";
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(
+                        "status", 403,
+                        "error", "Forbidden",
+                        "message", ex.getMessage(),
+                        "timestamp", System.currentTimeMillis()
+                ));
+    }
 
     /**
      * Обробляє виняток {@link RemoteFileUploadException}.

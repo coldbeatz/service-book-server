@@ -20,17 +20,12 @@ import servicebook.resources.Resource;
 import servicebook.services.CarBrandService;
 import servicebook.services.CountryService;
 
-import servicebook.services.upload.FileUploadResponse;
 import servicebook.services.upload.FileUploadService;
-import servicebook.services.upload.FileUploadStatus;
 
 import servicebook.user.User;
 
 import servicebook.utils.responce.ResponseUtil;
 
-import java.io.IOException;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -76,21 +71,8 @@ public class CarBrandController extends BaseController {
             Resource resource = carBrand.getImageResource();
 
             if (file != null && !file.isEmpty()) {
-                FileUploadResponse result = fileUploadService.uploadFileToExternalHost(file);
-                FileUploadStatus status = result.getStatus();
-
-                if (status != FileUploadStatus.SUCCESS) {
-                    return ResponseUtil.error("resource_loading_error");
-                }
-
-                if (resource != null) {
-                    resource.setUrl(result.getFileName());
-                    resource.setUser(user);
-                    resource.setUploadDate(LocalDateTime.now());
-                } else {
-                    resource = Resource.createResource(result.getFileName(), user);
-                    carBrand.setImageResource(resource);
-                }
+                resource = fileUploadService.uploadFileToExternalHost(file, user, resource);
+                carBrand.setImageResource(resource);
             }
 
             Country country = null;
@@ -113,34 +95,27 @@ public class CarBrandController extends BaseController {
     public ResponseEntity<?> saveBrand(@RequestParam("brand") String brand,
                                        @RequestParam(value = "countryId", required = false) Long countryId,
                                        @RequestParam("file") MultipartFile file) {
-        try {
-            User user = getAuthenticatedUser();
 
-            FileUploadResponse result = fileUploadService.uploadFileToExternalHost(file);
-            FileUploadStatus status = result.getStatus();
+        User user = getAuthenticatedUser();
 
-            if (status == FileUploadStatus.SUCCESS) {
-                Resource resource = Resource.createResource(result.getFileName(), user);
-
-                Country country = null;
-                if (countryId != null) {
-                    country = countryService.getById(countryId);
-                }
-
-                CarBrand carBrand = CarBrand.builder()
-                        .brand(brand)
-                        .country(country)
-                        .imageResource(resource)
-                        .build();
-
-                carBrandService.saveOrUpdate(carBrand);
-
-                return ResponseEntity.ok(carBrand);
-            } else {
-                throw new ClientException("resource_loading_error", "Error loading resource to remote hosting");
-            }
-        } catch (ClientException e) {
-            return ResponseUtil.error(e);
+        Resource resource = null;
+        if (file != null && !file.isEmpty()) {
+            resource = fileUploadService.uploadFileToExternalHost(file, user);
         }
+
+        Country country = null;
+        if (countryId != null) {
+            country = countryService.getById(countryId);
+        }
+
+        CarBrand carBrand = CarBrand.builder()
+                .brand(brand)
+                .country(country)
+                .imageResource(resource)
+                .build();
+
+        carBrandService.saveOrUpdate(carBrand);
+
+        return ResponseEntity.ok(carBrand);
     }
 }
