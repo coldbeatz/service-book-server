@@ -22,4 +22,6 @@ public class RegulationsMaintenanceRequest {
     private List<FuelType> fuelTypes;
 
     private List<RegulationsMaintenanceTaskRequest> tasks;
+
+    private Long carId;
 }

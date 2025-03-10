@@ -28,17 +28,23 @@ public class RegulationsMaintenanceController extends BaseController {
 
     private final RegulationsMaintenanceService maintenanceService;
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        RegulationsMaintenance maintenance = maintenanceService.getById(id);
+        maintenanceService.delete(maintenance);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<RegulationsMaintenance>> all() {
-        List<RegulationsMaintenance> maintenances = maintenanceService.getAll();
+        List<RegulationsMaintenance> maintenances = maintenanceService.getDefaultMaintenances();
 
         return ResponseEntity.ok(maintenances);
     }
 
     @PostMapping
-    public ResponseEntity<RegulationsMaintenance> save(
-            @RequestBody RegulationsMaintenanceRequest request) {
-
+    public ResponseEntity<RegulationsMaintenance> save(@RequestBody RegulationsMaintenanceRequest request) {
         RegulationsMaintenance maintenance = new RegulationsMaintenance();
 
         maintenance.setWorkDescription(new LocalizedString());
@@ -52,8 +58,8 @@ public class RegulationsMaintenanceController extends BaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RegulationsMaintenance> update(
-            @PathVariable Long id, @RequestBody RegulationsMaintenanceRequest request) {
+    public ResponseEntity<RegulationsMaintenance> update(@PathVariable Long id,
+                                                         @RequestBody RegulationsMaintenanceRequest request) {
 
         RegulationsMaintenance maintenance = maintenanceService.getById(id);
         buildRegulationsMaintenance(request, maintenance);

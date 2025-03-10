@@ -82,6 +82,7 @@ public class User implements UserDetails {
     @Column(name = "enable_email_newsletter")
     private boolean enableEmailNewsletter;
 
+    @ToString.Exclude
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private EmailConfirmation emailConfirmation;

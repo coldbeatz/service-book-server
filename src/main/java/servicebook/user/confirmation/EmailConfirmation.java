@@ -1,5 +1,6 @@
 package servicebook.user.confirmation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -21,6 +22,8 @@ public class EmailConfirmation {
     @Column(name = "id", nullable = false, unique = true)
     private long id;
 
+    @ToString.Exclude
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;

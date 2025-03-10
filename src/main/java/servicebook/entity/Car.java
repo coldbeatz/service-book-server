@@ -1,5 +1,7 @@
 package servicebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -8,6 +10,7 @@ import lombok.ToString;
 
 import servicebook.entity.engine.CarEngine;
 
+import servicebook.entity.maintenance.RegulationsMaintenance;
 import servicebook.entity.maintenance.converters.CarTransmissionTypeJsonConverter;
 
 import servicebook.resources.Resource;
@@ -71,4 +74,21 @@ public class Car extends AuditableEntity {
     @Column(name = "transmissions", columnDefinition = "json")
     @Convert(converter = CarTransmissionTypeJsonConverter.class)
     private List<CarTransmissionType> transmissions = new ArrayList<>();
+
+    /**
+     * Список регламентних обслуговувань, прив'язаних до цього автомобіля
+     */
+    @OneToMany(mappedBy = "car", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @JsonManagedReference
+    private List<RegulationsMaintenance> maintenances = new ArrayList<>();
+
+    public void addMaintenance(RegulationsMaintenance maintenance) {
+        maintenances.add(maintenance);
+        maintenance.setCar(this);
+    }
+
+    public void removeMaintenance(RegulationsMaintenance maintenance) {
+        maintenances.remove(maintenance);
+        maintenance.setCar(null);
+    }
 }

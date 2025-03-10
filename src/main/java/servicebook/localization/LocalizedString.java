@@ -3,6 +3,7 @@ package servicebook.localization;
 import jakarta.persistence.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,6 +12,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @Entity(name = "localization")
 public class LocalizedString {
 
@@ -24,6 +26,10 @@ public class LocalizedString {
 
     @Column(name = "ua", length = 2048)
     private String ua;
+
+    public LocalizedString copyWithoutId() {
+        return create(en, ua);
+    }
 
     public static LocalizedString create(String en, String ua) {
         LocalizedString localizedString = new LocalizedString();

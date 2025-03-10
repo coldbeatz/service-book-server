@@ -1,6 +1,8 @@
 package servicebook.entity.maintenance;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -42,8 +44,18 @@ public class RegulationsMaintenanceTask {
     @Column(name = "work_type", nullable = false)
     private MaintenanceWorkType workType;
 
-    @JsonIgnore
+    @ToString.Exclude
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "regulations_maintenance_id", nullable = false)
     private RegulationsMaintenance regulationsMaintenance;
+
+    public RegulationsMaintenanceTask copyWithoutId(RegulationsMaintenance maintenance) {
+        return RegulationsMaintenanceTask.builder()
+                .interval(interval)
+                .specificMileage(specificMileage)
+                .workType(workType)
+                .regulationsMaintenance(maintenance)
+                .build();
+    }
 }

@@ -1,10 +1,14 @@
 package servicebook.entity.maintenance;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 import lombok.*;
 
 import servicebook.entity.AuditableEntity;
+import servicebook.entity.Car;
 import servicebook.entity.CarTransmissionType;
 import servicebook.entity.engine.FuelType;
 
@@ -48,6 +52,15 @@ public class RegulationsMaintenance extends AuditableEntity {
     private boolean useDefault;
 
     /**
+     * Регламенте обслуговування може бути доступним тільки для одного автомобіля або для всіх
+     */
+    @ToString.Exclude
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "car_id")
+    private Car car;
+
+    /**
      * Трансмісії які обслуговуються при даній роботі
      */
     @Column(name = "transmissions", columnDefinition = "json")
@@ -66,7 +79,30 @@ public class RegulationsMaintenance extends AuditableEntity {
      * Один регламент може містити кілька завдань (наприклад, перевірка і заміна)
      */
     @OneToMany(mappedBy = "regulationsMaintenance", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<RegulationsMaintenanceTask> tasks = new ArrayList<>();
+
+    @SuppressWarnings("unused")
+    public Long getCarId() {
+        return car != null ? car.getId() : null;
+    }
+
+    public RegulationsMaintenance copyWithoutId() {
+        RegulationsMaintenance maintenance = RegulationsMaintenance.builder()
+                .workDescription(workDescription.copyWithoutId())
+                .useDefault(useDefault)
+                .transmissions(new ArrayList<>(transmissions))
+                .fuelTypes(new ArrayList<>(fuelTypes))
+                .tasks(new ArrayList<>())
+                .build();
+
+        for (RegulationsMaintenanceTask task : tasks) {
+            maintenance.addTask(task.copyWithoutId(this));
+        }
+
+
+        return maintenance;
+    }
 
     public void addTask(RegulationsMaintenanceTask task) {
         tasks.add(task);
