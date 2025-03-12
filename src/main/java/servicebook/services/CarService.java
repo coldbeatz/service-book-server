@@ -21,6 +21,11 @@ public class CarService {
     private final CarRepository carRepository;
 
     @Transactional(readOnly = true)
+    public long getCarsCountByBrandId(Long brandId) {
+        return carRepository.countCarsByBrandId(brandId);
+    }
+
+    @Transactional(readOnly = true)
     public List<Car> getAll() {
         return carRepository.findAll();
     }

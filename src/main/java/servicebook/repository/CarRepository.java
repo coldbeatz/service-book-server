@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface CarRepository extends JpaRepository<Car, Long> {
 
+    long countCarsByBrandId(Long brandId);
+
     @Query("SELECT car FROM Car car WHERE car.brand.id = :brandId")
     List<Car> findCarsByBrand(@Param("brandId") Long brandId);
 }

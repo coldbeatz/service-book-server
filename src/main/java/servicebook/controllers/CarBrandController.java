@@ -13,11 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import servicebook.entity.CarBrand;
 import servicebook.entity.Country;
 
-import servicebook.exceptions.ClientException;
-
 import servicebook.resources.Resource;
 
 import servicebook.services.CarBrandService;
+import servicebook.services.CarService;
 import servicebook.services.CountryService;
 
 import servicebook.services.upload.FileUploadService;
@@ -27,6 +26,7 @@ import servicebook.user.User;
 import servicebook.utils.responce.ResponseUtil;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("admin/brands")
@@ -34,9 +34,16 @@ import java.util.List;
 public class CarBrandController extends BaseController {
 
     private final CarBrandService carBrandService;
+    private final CarService carService;
     private final CountryService countryService;
 
     private final FileUploadService fileUploadService;
+
+    @GetMapping("/{id}/cars/count")
+    public ResponseEntity<?> getCarsCountByBrandId(@PathVariable("id") Long brandId) {
+        long carsCount = carService.getCarsCountByBrandId(brandId);
+        return ResponseUtil.success(Map.of("count", carsCount));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {

@@ -34,7 +34,7 @@ public class Car extends AuditableEntity {
      * Марка автомобіля
      */
     @ManyToOne
-    @JoinColumn(name = "brand", nullable = false)
+    @JoinColumn(name = "brand_id", nullable = false)
     private CarBrand brand;
 
     /**
