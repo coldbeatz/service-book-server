@@ -78,7 +78,7 @@ public class Car extends AuditableEntity {
     /**
      * Список регламентних обслуговувань, прив'язаних до цього автомобіля
      */
-    @OneToMany(mappedBy = "car", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<RegulationsMaintenance> maintenances = new ArrayList<>();
 

@@ -10,15 +10,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import servicebook.entity.Car;
 
+import servicebook.exceptions.EntityHasDependenciesException;
 import servicebook.repository.CarRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CarService {
 
     private final CarRepository carRepository;
+
+    @Transactional
+    public void delete(Car car) {
+        long dependencies = Optional.ofNullable(carRepository.hasDependencies(car)).orElse(0L);
+
+        if (dependencies > 0) {
+            throw new EntityHasDependenciesException("The car can't be delete, it has dependencies");
+        }
+
+        carRepository.delete(car);
+    }
 
     @Transactional(readOnly = true)
     public long getCarsCountByBrandId(Long brandId) {

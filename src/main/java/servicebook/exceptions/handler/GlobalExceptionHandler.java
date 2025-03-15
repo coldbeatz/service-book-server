@@ -2,6 +2,9 @@ package servicebook.exceptions.handler;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -13,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 import servicebook.exceptions.ClientException;
 import servicebook.exceptions.DuplicateEntityException;
 
+import servicebook.exceptions.EntityHasDependenciesException;
 import servicebook.exceptions.RemoteFileUploadException;
 import servicebook.utils.responce.ErrorResponse;
 
@@ -26,6 +30,24 @@ public class GlobalExceptionHandler {
 
     private static final String ENTITY_NOT_FOUND_CODE = "entity_not_found";
     private static final String FILE_UPLOAD_FAILED_CODE = "file_upload_failed";
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    private static class HandlerErrorResponse {
+
+        private String error;
+        private String message;
+    }
+
+    /**
+     * Обробляє виняток {@link EntityHasDependenciesException} і повертає HTTP 409 (Conflict)
+     */
+    @ExceptionHandler(EntityHasDependenciesException.class)
+    public ResponseEntity<?> handleEntityHasDependenciesException(EntityHasDependenciesException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new HandlerErrorResponse("entity_has_dependencies", e.getMessage()));
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {

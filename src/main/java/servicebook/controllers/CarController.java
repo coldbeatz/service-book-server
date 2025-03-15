@@ -21,8 +21,6 @@ import servicebook.user.User;
 
 import servicebook.utils.responce.ResponseUtil;
 
-import java.io.IOException;
-
 import java.time.LocalDateTime;
 
 import java.util.List;
@@ -37,15 +35,23 @@ public class CarController extends BaseController {
 
     private final FileUploadService fileUploadService;
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+        Car car = carService.getCarById(id);
+        carService.delete(car);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+    public ResponseEntity<Car> findById(@PathVariable("id") Long id) {
         Car car = carService.getCarById(id);
 
         return ResponseUtil.success(car);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(@RequestParam(value = "brandId", required = false) Long brandId) {
+    public ResponseEntity<List<Car>> getAll(@RequestParam(value = "brandId", required = false) Long brandId) {
         List<Car> cars = brandId != null ?
                 carService.getCarsByBrand(brandId) :
                 carService.getAll();
@@ -89,7 +95,7 @@ public class CarController extends BaseController {
         }
     }
 
-    private void saveOrUpdateCar(Car car, CarRequest request) throws IOException {
+    private void saveOrUpdateCar(Car car, CarRequest request) {
         User user = getAuthenticatedUser();
         MultipartFile file = request.getFile();
 

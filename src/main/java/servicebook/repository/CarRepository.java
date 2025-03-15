@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface CarRepository extends JpaRepository<Car, Long> {
 
+    @Query("SELECT COUNT(c) FROM UserCar c WHERE c.car = :car")
+    Long hasDependencies(@Param("car") Car car);
+
     long countCarsByBrandId(Long brandId);
 
     @Query("SELECT car FROM Car car WHERE car.brand.id = :brandId")
