@@ -2,107 +2,79 @@ package servicebook.controllers;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
 import servicebook.entity.Car;
 import servicebook.entity.engine.CarEngine;
-import servicebook.entity.engine.FuelType;
+
+import servicebook.requests.EngineRequest;
 
 import servicebook.services.CarEngineService;
 import servicebook.services.CarService;
 
-import servicebook.utils.responce.ResponseUtil;
+import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("admin/engines")
+@RequestMapping("admin/cars/{carId}/engines")
 @RequiredArgsConstructor
 public class CarEngineController extends BaseController {
 
     private final CarService carService;
     private final CarEngineService carEngineService;
 
-    @GetMapping("/fuel_types")
-    public ResponseEntity<?> getAvailableFuelTypes() {
-        return ResponseUtil.success(FuelType.values());
-    }
-
-    /*@GetMapping()
-    public ResponseEntity<List<CarEngine>> getEnginesByCar(@RequestParam("car") Long carId) {
-        Car car = carService.getCarById(carId);
-        if (car != null) {
-            return ResponseUtil.success(car.getEngines());
-        }
-
-        return ResponseUtil.success(Collections.emptyList());
-    }*/
-
     @GetMapping("/{id}")
-    public ResponseEntity<CarEngine> findById(@PathVariable("id") Long id) {
+    public ResponseEntity<CarEngine> findById(@PathVariable long carId, @PathVariable("id") Long id) {
         CarEngine engine = carEngineService.getEngineById(id);
 
         return ResponseEntity.ok(engine);
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<?> updateEngine(@RequestParam("engineId") Long engineId,
-                                          @RequestParam(value = "name", required = false) String name,
-                                          @RequestParam("displacement") Double displacement,
-                                          @RequestParam("fuelType") String fuelType,
-                                          @RequestParam("horsepower") Integer horsepower) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable long carId, @PathVariable Long id) {
+        CarEngine engine = carEngineService.getEngineById(id);
+        carEngineService.delete(engine);
 
-        CarEngine engine = carEngineService.getEngineById(engineId);
-        if (engine == null) {
-            return ResponseUtil.error("car_engine_not_found");
-        }
-
-        try {
-            FuelType fuelTypeEnum = FuelType.valueOf(fuelType);
-
-            engine.setName(name);
-            engine.setDisplacement(displacement);
-            engine.setHorsepower(horsepower);
-            engine.setFuelType(fuelTypeEnum);
-            engine.setUpdatedBy(getAuthenticatedUser());
-
-            carEngineService.saveEngine(engine);
-
-            return ResponseEntity.ok(engine);
-        } catch (Exception e) {
-            return ResponseUtil.error();
-        }
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createEngine(@RequestParam("carId") Long carId,
-                                          @RequestParam(value = "name", required = false) String name,
-                                          @RequestParam("displacement") Float displacement,
-                                          @RequestParam("fuelType") String fuelType,
-                                          @RequestParam("horsepower") Integer horsepower) {
-
+    @PostMapping
+    public ResponseEntity<CarEngine> createEngine(@PathVariable long carId, @RequestBody EngineRequest request) {
         Car car = carService.getCarById(carId);
-        if (car == null) {
-            return ResponseUtil.error("car_not_found");
-        }
 
-        try {
-            FuelType fuelTypeEnum = FuelType.valueOf(fuelType);
+        CarEngine engine = new CarEngine();
+        engine.setCar(car);
 
-            CarEngine engine = CarEngine.builder()
-                    .car(car)
-                    .name(name)
-                    .displacement(displacement)
-                    .horsepower(horsepower)
-                    .fuelType(fuelTypeEnum)
-                    .createdBy(getAuthenticatedUser())
-                    .build();
+        buildEngine(request, engine);
 
-            carEngineService.saveEngine(engine);
+        engine.setCreatedBy(getAuthenticatedUser());
+        carEngineService.saveOrUpdate(engine);
 
-            return ResponseEntity.ok(engine);
-        } catch (Exception e) {
-            return ResponseUtil.error();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(engine);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEngine(@PathVariable long carId, @PathVariable Long id,
+                                          @RequestBody EngineRequest request) {
+
+        CarEngine engine = carEngineService.getEngineById(id);
+
+        buildEngine(request, engine);
+
+        engine.setUpdatedBy(getAuthenticatedUser());
+        engine.setUpdatedAt(LocalDateTime.now());
+
+        carEngineService.saveOrUpdate(engine);
+
+        return ResponseEntity.ok(engine);
+    }
+
+    private void buildEngine(EngineRequest request, CarEngine engine) {
+        engine.setName(request.getName());
+        engine.setDisplacement(request.getDisplacement());
+        engine.setHorsepower(request.getHorsepower());
+        engine.setFuelType(request.getFuelType());
     }
 }

@@ -18,13 +18,18 @@ public class CarEngineService {
 
     private final CarEngineRepository carEngineRepository;
 
+    @Transactional
+    public void delete(CarEngine engine) {
+        carEngineRepository.delete(engine);
+    }
+
     @Transactional(readOnly = true)
     public CarEngine getEngineById(Long id) {
         return carEngineRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional
-    public void saveEngine(CarEngine engine) {
+    public void saveOrUpdate(CarEngine engine) {
         carEngineRepository.save(engine);
     }
 }

@@ -6,13 +6,8 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
+import servicebook.entity.AuditableEntity;
 import servicebook.entity.Car;
-import servicebook.user.User;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -22,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "car_engines")
-public class CarEngine {
+public class CarEngine extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,30 +48,6 @@ public class CarEngine {
      */
     @Column(name = "horsepower", nullable = false)
     private int horsepower;
-
-    /**
-     * Користувач, який додав двигун
-     */
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "created_by", updatable = false)
-    private User createdBy;
-
-    /**
-     * Користувач, який змінив двигун
-     */
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     /**
      * Автомобіль
