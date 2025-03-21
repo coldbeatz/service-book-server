@@ -32,6 +32,13 @@ public class UserCarNoteController extends BaseController {
 
     private final HtmlContentService htmlContentService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserCarNote> findById(@PathVariable("id") Long id) {
+        UserCarNote note = userCarNoteService.getById(id);
+
+        return ResponseEntity.ok(note);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         UserCarNote note = userCarNoteService.getById(id);
