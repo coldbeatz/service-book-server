@@ -29,12 +29,25 @@ public class CarEngineController extends BaseController {
     public ResponseEntity<CarEngine> findById(@PathVariable long carId, @PathVariable("id") Long id) {
         CarEngine engine = carEngineService.getEngineById(id);
 
+        if (engine.getCar() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (engine.getCar().getId() != carId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
         return ResponseEntity.ok(engine);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable long carId, @PathVariable Long id) {
         CarEngine engine = carEngineService.getEngineById(id);
+
+        if (engine.getCar().getId() != carId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
         carEngineService.delete(engine);
 
         return ResponseEntity.noContent().build();
@@ -60,6 +73,10 @@ public class CarEngineController extends BaseController {
                                           @RequestBody EngineRequest request) {
 
         CarEngine engine = carEngineService.getEngineById(id);
+
+        if (engine.getCar().getId() != carId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         buildEngine(request, engine);
 

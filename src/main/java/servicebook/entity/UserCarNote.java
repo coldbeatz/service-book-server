@@ -6,11 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 
 import lombok.*;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @ToString
@@ -19,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_cars_notes")
-public class UserCarNote {
+public class UserCarNote extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,18 +41,4 @@ public class UserCarNote {
     @NotBlank
     @Column(name = "content", nullable = false, length = 65535, columnDefinition = "TEXT")
     private String content;
-
-    /**
-     * Час створення запису
-     */
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    /**
-     * Час останнього оновлення запису
-     */
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

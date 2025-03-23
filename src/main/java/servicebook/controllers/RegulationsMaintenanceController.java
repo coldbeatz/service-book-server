@@ -4,13 +4,14 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.thymeleaf.util.StringUtils;
 
 import servicebook.entity.maintenance.RegulationsMaintenance;
-
 import servicebook.entity.maintenance.RegulationsMaintenanceTask;
+
 import servicebook.localization.LocalizedString;
 
 import servicebook.requests.LocalizedRequest;
@@ -22,12 +23,13 @@ import servicebook.services.RegulationsMaintenanceService;
 import java.util.List;
 
 @RestController
-@RequestMapping("admin/regulations_maintenance")
+@RequestMapping("regulations_maintenance")
 @RequiredArgsConstructor
 public class RegulationsMaintenanceController extends BaseController {
 
     private final RegulationsMaintenanceService maintenanceService;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         RegulationsMaintenance maintenance = maintenanceService.getById(id);
@@ -36,6 +38,7 @@ public class RegulationsMaintenanceController extends BaseController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<RegulationsMaintenance>> all() {
         List<RegulationsMaintenance> maintenances = maintenanceService.getDefaultMaintenances();
@@ -43,6 +46,7 @@ public class RegulationsMaintenanceController extends BaseController {
         return ResponseEntity.ok(maintenances);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<RegulationsMaintenance> save(@RequestBody RegulationsMaintenanceRequest request) {
         RegulationsMaintenance maintenance = new RegulationsMaintenance();
@@ -57,6 +61,7 @@ public class RegulationsMaintenanceController extends BaseController {
         return ResponseEntity.ok(maintenance);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<RegulationsMaintenance> update(@PathVariable Long id,
                                                          @RequestBody RegulationsMaintenanceRequest request) {

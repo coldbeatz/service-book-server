@@ -11,8 +11,6 @@ public class UserCarNoteRequest {
 
     private Long id;
 
-    private Long userCarId;
-
     private String shortDescription;
     private String content;
 }
