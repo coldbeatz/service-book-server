@@ -61,7 +61,6 @@ public class User implements UserDetails {
     /**
      * Тип (роль) користувача
      */
-    @JsonIgnore
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import servicebook.entity.UserCar;
 
 import servicebook.repository.UserCarRepository;
+import servicebook.user.User;
 
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class UserCarService {
     private final UserCarRepository userCarRepository;
 
     @Transactional(readOnly = true)
-    public List<UserCar> getAll() {
-        return userCarRepository.findAll();
+    public List<UserCar> getAllByUser(User user) {
+        return userCarRepository.findAllByUser(user);
     }
 
     @Transactional

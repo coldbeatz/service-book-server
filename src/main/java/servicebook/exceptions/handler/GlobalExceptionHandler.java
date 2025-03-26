@@ -13,11 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import org.springframework.security.access.AccessDeniedException;
 
-import servicebook.exceptions.ClientException;
-import servicebook.exceptions.DuplicateEntityException;
+import servicebook.exceptions.*;
 
-import servicebook.exceptions.EntityHasDependenciesException;
-import servicebook.exceptions.RemoteFileUploadException;
 import servicebook.utils.responce.ErrorResponse;
 
 import java.util.Map;
@@ -49,12 +46,17 @@ public class GlobalExceptionHandler {
                 .body(new HandlerErrorResponse("entity_has_dependencies", e.getMessage()));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(Map.of(
-                        "status", 403,
+                        "status", HttpStatus.FORBIDDEN.value(),
                         "error", "Forbidden",
                         "message", ex.getMessage(),
                         "timestamp", System.currentTimeMillis()

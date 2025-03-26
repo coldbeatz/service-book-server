@@ -25,7 +25,6 @@ public class CountryService {
 
     @Transactional(readOnly = true)
     public Country getById(Long id) {
-        return countryRepository.findById(id)
-                .orElse(null);
+        return countryRepository.findById(id).orElse(null);
     }
 }

@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 
 import lombok.*;
 
+/**
+ * Нотатка про автомобіль (запис "сервісної книги")
+ */
 @Getter
 @Setter
 @ToString
@@ -14,8 +17,11 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_cars_notes")
-public class UserCarNote extends AuditableEntity {
+public class UserCarNote extends AuditableTimeEntity {
 
+    /**
+     * Унікальний ідентифікатор
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

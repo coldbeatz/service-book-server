@@ -1,22 +1,23 @@
-package servicebook.controllers.converters;
+package servicebook.controllers.car.converters;
 
 import org.springframework.core.convert.converter.Converter;
+
 import org.springframework.stereotype.Component;
 
-import servicebook.entity.CarTransmissionType;
+import servicebook.entity.engine.FuelType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class ListTransmissionsConverter implements Converter<String, List<CarTransmissionType>> {
+public class ListFuelTypesConverter implements Converter<String, List<FuelType>> {
 
     @Override
-    public List<CarTransmissionType> convert(String source) {
+    public List<FuelType> convert(String source) {
         return Arrays.stream(source.split(","))
                 .map(String::trim)
-                .map(value -> Enum.valueOf(CarTransmissionType.class, value))
+                .map(value -> Enum.valueOf(FuelType.class, value))
                 .collect(Collectors.toList());
     }
 }

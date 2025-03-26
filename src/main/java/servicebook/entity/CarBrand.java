@@ -21,8 +21,8 @@ public class CarBrand extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, unique = true)
-    private long id;
+    @Column(name = "id")
+    private Long id;
 
     /**
      * Марка автомобіля

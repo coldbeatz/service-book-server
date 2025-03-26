@@ -44,11 +44,28 @@ public class UserCarNoteController extends BaseController {
     private final HtmlContentService htmlContentService;
 
     /**
-     * Перевірка доступу до нотатки за userCarId та ідентифікатором користувача
+     * Перевірка чи користувач має доступ до запису нотатки автомобіля
      */
-    private boolean isForbidden(UserCarNote note, Long userCarId) {
-        return !Objects.equals(note.getUserCar().getId(), userCarId) ||
-               !Objects.equals(note.getCreatedBy().getId(), getAuthenticatedUser().getId());
+    private void accessValidation(UserCarNote note, Long userCarId) {
+        UserCar userCar = note.getUserCar();
+
+        if (!Objects.equals(userCar.getId(), userCarId)) {
+            throw new AccessDeniedException("You do not have permission to access this user car");
+        }
+
+        accessValidation(userCar);
+    }
+
+    /**
+     * Перевірка чи користувач має доступ до автомобіля
+     */
+    private void accessValidation(UserCar userCar) {
+        User creator = userCar.getUser();
+        User authUser = getAuthenticatedUser();
+
+        if (!Objects.equals(creator.getId(), authUser.getId())) {
+            throw new AccessDeniedException("You do not have permission to access this car");
+        }
     }
 
     /**
@@ -57,12 +74,7 @@ public class UserCarNoteController extends BaseController {
     @GetMapping
     public ResponseEntity<List<UserCarNote>> findAll(@PathVariable("userCarId") Long userCarId) {
         UserCar userCar = userCarService.getById(userCarId);
-
-        User creator = userCar.getCreatedBy();
-        User authUser = getAuthenticatedUser();
-
-        if (creator.getId() != authUser.getId())
-            throw new AccessDeniedException("You do not have permission to access this car");
+        accessValidation(userCar);
 
         List<UserCarNote> notes = userCarNoteService.findByUserCar(userCar);
 
@@ -77,10 +89,7 @@ public class UserCarNoteController extends BaseController {
                                                 @PathVariable("id") Long id) {
 
         UserCarNote note = userCarNoteService.getById(id);
-
-        if (isForbidden(note, userCarId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
+        accessValidation(note, userCarId);
 
         return ResponseEntity.ok(note);
     }
@@ -93,10 +102,7 @@ public class UserCarNoteController extends BaseController {
                                        @PathVariable Long id) {
 
         UserCarNote note = userCarNoteService.getById(id);
-
-        if (isForbidden(note, userCarId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
+        accessValidation(note, userCarId);
 
         userCarNoteService.delete(note);
 
@@ -110,14 +116,13 @@ public class UserCarNoteController extends BaseController {
     public ResponseEntity<UserCarNote> save(@PathVariable("userCarId") Long userCarId,
                                             @RequestBody UserCarNoteRequest request) {
 
+        UserCar userCar = userCarService.getById(userCarId);
+        accessValidation(userCar);
+
         UserCarNote note = new UserCarNote();
 
-        UserCar userCar = userCarService.getById(userCarId);
-
         note.setUserCar(userCar);
-
         note.setCreatedAt(LocalDateTime.now());
-        note.setCreatedBy(getAuthenticatedUser());
 
         saveOrUpdate(note, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(note);
@@ -132,13 +137,9 @@ public class UserCarNoteController extends BaseController {
                                               @RequestBody UserCarNoteRequest request) {
 
         UserCarNote note = userCarNoteService.getById(id);
-
-        if (isForbidden(note, userCarId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
+        accessValidation(note, userCarId);
 
         note.setUpdatedAt(LocalDateTime.now());
-        note.setUpdatedBy(getAuthenticatedUser());
 
         saveOrUpdate(note, request);
         return ResponseEntity.ok(note);

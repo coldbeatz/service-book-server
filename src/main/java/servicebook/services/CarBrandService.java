@@ -13,6 +13,7 @@ import servicebook.exceptions.DuplicateEntityException;
 import servicebook.repository.CarBrandRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -25,7 +26,7 @@ public class CarBrandService {
     public void saveOrUpdate(CarBrand brand) {
         Optional<CarBrand> findBrandOptional = carBrandRepository.findBrandByName(brand.getBrand());
 
-        if (findBrandOptional.isPresent() && findBrandOptional.get().getId() != brand.getId()) {
+        if (findBrandOptional.isPresent() && !Objects.equals(findBrandOptional.get().getId(), brand.getId())) {
             throw new DuplicateEntityException("car_brand_not_unique");
         }
 

@@ -1,6 +1,9 @@
 package servicebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
+
 import jakarta.validation.constraints.*;
 
 import lombok.*;
@@ -10,7 +13,7 @@ import servicebook.entity.engine.FuelType;
 
 import servicebook.resources.Resource;
 
-import java.util.List;
+import servicebook.user.User;
 
 
 /**
@@ -26,8 +29,11 @@ import java.util.List;
 @Table(name = "user_cars", indexes = {
     @Index(name = "idx_vin_code", columnList = "vin_code")
 })
-public class UserCar extends AuditableEntity {
+public class UserCar extends AuditableTimeEntity {
 
+    /**
+     * Унікальний ідентифікатор
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -98,6 +104,14 @@ public class UserCar extends AuditableEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_resource")
     private Resource imageResource;
+
+    /**
+     * Користувач, який додав автомобіль
+     */
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     /**
      * Записи користувача до цього автомобіля
