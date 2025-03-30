@@ -3,14 +3,19 @@ package servicebook.services.mail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import org.thymeleaf.TemplateEngine;
@@ -21,8 +26,16 @@ import servicebook.user.User;
 import servicebook.user.confirmation.EmailConfirmation;
 import servicebook.user.confirmation.EmailConfirmationService;
 
+@SuppressWarnings("unused")
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class EmailService {
+
+    private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
+
+    private final EmailConfirmationService emailConfirmationService;
 
     @Value("${spring.mail.username}")
     private String fromAddress;
@@ -30,50 +43,86 @@ public class EmailService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
-
-    private final EmailConfirmationService emailConfirmationService;
-
-    @Autowired
-    public EmailService(JavaMailSender mailSender,
-                        TemplateEngine templateEngine,
-                        EmailConfirmationService emailConfirmationService) {
-
-        this.mailSender = mailSender;
-        this.templateEngine = templateEngine;
-        this.emailConfirmationService = emailConfirmationService;
+    /**
+     * Викликати при виникненні помилки при відправці e-mail
+     *
+     * @param to E-mail отримувача
+     * @param e  Помилка
+     */
+    private void onMessageSendFailed(String to, Throwable e) {
+        log.warn("Failed to send email to {}: {}", to, e.getMessage());
     }
 
-    public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
+    /**
+     * Відправка звичайного текстового повідомлення на e-mail
+     *
+     * @param to      E-mail отримувача, на який буде надіслано повідомлення
+     * @param subject Заголовок (тема) повідомлення, який буде відображено у вхідних листах
+     * @param body    Вміст повідомлення
+     */
+    @Async
+    public void sendTextMessage(String to, String subject, String body) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setTo(to);
-        message.setFrom(fromAddress);
-        message.setSubject(subject);
-        message.setText(body);
+            message.setTo(to);
+            message.setFrom(fromAddress);
+            message.setSubject(subject);
+            message.setText(body);
 
-        mailSender.send(message);
+            mailSender.send(message);
+
+            log.info("Sent text email to {}", to);
+        } catch (MailException e) {
+            onMessageSendFailed(to, e);
+        }
     }
 
-    public void sendTemplateMessage(String to, String subject, String template, Context context) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+    /**
+     * Відправка HTML повідомлення на e-mail
+     *
+     * @param to       E-mail отримувача, на який буде надіслано повідомлення
+     * @param subject  Заголовок (тема) повідомлення, який буде відображено у вхідних листах
+     * @param htmlBody HTML вміст повідомлення
+     */
+    @Async
+    public void sendHtmlMessage(String to, String subject, String htmlBody) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
 
-        String html = templateEngine.process(template, context);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setTo(to);
-        helper.setFrom(fromAddress);
-        helper.setText(html, true);
-        helper.setSubject(subject);
+            helper.setTo(to);
+            helper.setFrom(fromAddress);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
 
-        mailSender.send(message);
+            mailSender.send(message);
+
+            log.info("Sent html email to {}", to);
+        } catch (MessagingException | MailException e) {
+            onMessageSendFailed(to, e);
+        }
+    }
+
+    /**
+     * Відправити шаблонне HTML повідомлення на e-mail
+     *
+     * @param to       E-mail отримувача, на який буде надіслано повідомлення
+     * @param subject  Заголовок (тема) повідомлення, який буде відображено у вхідних листах
+     * @param template Назва шаблону Thymeleaf, що буде використаний для формування HTML вмісту листа
+     * @param context  Контекст із динамічними змінними для заповнення шаблону
+     */
+    public void sendTemplateMessage(String to, String subject, String template, Context context) {
+        String htmlBody = templateEngine.process(template, context);
+
+        sendHtmlMessage(to, subject, htmlBody);
     }
 
     /**
      * Повідомлення підтвердження реєстрації
      */
-    public void sendRegistrationConfirmationEmail(User user, String desiredEmail) throws MessagingException {
+    public void sendRegistrationConfirmationEmail(User user, String desiredEmail) {
         EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user, desiredEmail);
 
         Context context = new Context();
@@ -92,9 +141,9 @@ public class EmailService {
     }
 
     /**
-     * Повідомлення відновлення доступу до аккаунту
+     * Повідомлення відновлення доступу до облікового запису
      */
-    public void sendRestoreEmail(User user) throws MessagingException {
+    public void sendRestoreEmail(User user) {
         EmailConfirmation emailConfirmation = emailConfirmationService.createEmailConfirmation(user, user.getEmail());
 
         Context context = new Context();

@@ -19,11 +19,7 @@ import servicebook.controllers.BaseController;
 
 import servicebook.exceptions.ClientException;
 
-import servicebook.requests.UserSettingsRequest;
-import servicebook.response.LoginResponse;
-
-import servicebook.response.SettingsResponse;
-import servicebook.services.jwt.JwtService;
+import servicebook.localization.Localization;
 import servicebook.services.mail.EmailService;
 
 import servicebook.utils.responce.ErrorResponse;
@@ -38,8 +34,6 @@ public class UserController extends BaseController {
 
     private final UserService userService;
     private final EmailService emailService;
-
-    private final JwtService jwtService;
 
     private final UserRepository userRepository;
 
@@ -75,6 +69,8 @@ public class UserController extends BaseController {
 
                 user = findUser;
             }
+
+            user.setLocalization(Localization.EN);
 
             userService.setPassword(user, user.getPassword());
 

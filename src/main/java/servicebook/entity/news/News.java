@@ -57,4 +57,14 @@ public class News extends AuditableEntity {
     @Column(name = "posting_options", columnDefinition = "json", nullable = false)
     @Convert(converter = NewsPostingOptionJsonConverter.class)
     private List<NewsPostingOption> postingOptions = new ArrayList<>();
+
+    /**
+     * Позначка, що новина вже була опублікована (наприклад, надіслана email або розміщена на сайті)
+     */
+    @Column(name = "is_posted", nullable = false)
+    private boolean posted = false;
+
+    public boolean hasPostingOption(NewsPostingOption option) {
+        return postingOptions.contains(option);
+    }
 }

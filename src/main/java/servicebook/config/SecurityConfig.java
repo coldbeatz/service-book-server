@@ -29,6 +29,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 import servicebook.services.jwt.JwtAuthenticationFilter;
+import servicebook.user.UserService;
+import servicebook.user.filter.IpTrackingFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,13 +62,17 @@ public class SecurityConfig {
      * @throws Exception якщо виникає помилка під час налаштування.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
+        IpTrackingFilter ipTrackingFilter = new IpTrackingFilter(userService);
+
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().permitAll())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        http.addFilterBefore(ipTrackingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

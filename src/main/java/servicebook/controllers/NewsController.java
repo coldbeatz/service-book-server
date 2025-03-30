@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import servicebook.entity.news.News;
@@ -35,6 +37,7 @@ public class NewsController extends BaseController {
     /**
      * Отримати новину за її ID
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<News> getById(@PathVariable Long id) {
         News news = newsService.getById(id);
@@ -42,9 +45,18 @@ public class NewsController extends BaseController {
         return ResponseUtil.success(news);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/available")
+    public ResponseEntity<List<News>> getAvailableWebsiteNews() {
+        List<News> newsList = newsService.getAvailableWebsiteNews();
+
+        return ResponseEntity.ok(newsList);
+    }
+
     /**
      * Отримати список усіх новин
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<News>> all() {
         List<News> newsList = newsService.getAll();
@@ -55,6 +67,7 @@ public class NewsController extends BaseController {
     /**
      * Видалити новину за ID
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         News news = newsService.getById(id);
@@ -66,6 +79,7 @@ public class NewsController extends BaseController {
     /**
      * Створити нову новину
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<News> save(@RequestBody NewsRequest request) {
         News news = new News();
@@ -82,6 +96,7 @@ public class NewsController extends BaseController {
     /**
      * Оновити наявну новину
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<News> update(@PathVariable Long id, @RequestBody NewsRequest request) {
         News news = newsService.getById(id);

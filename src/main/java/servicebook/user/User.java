@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import servicebook.localization.Localization;
 import servicebook.user.confirmation.EmailConfirmation;
 
 import servicebook.user.role.Role;
@@ -80,6 +81,21 @@ public class User implements UserDetails {
      */
     @Column(name = "enable_email_newsletter")
     private boolean enableEmailNewsletter;
+
+    /**
+     * Останній IP користувача
+     */
+    @JsonIgnore
+    @Column(name = "last_ip")
+    private String lastIp;
+
+    /**
+     * Обрана локаль
+     */
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    @Column(name = "selected_language", nullable = false)
+    private Localization localization;
 
     @ToString.Exclude
     @JsonIgnore
