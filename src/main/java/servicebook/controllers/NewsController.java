@@ -45,7 +45,6 @@ public class NewsController extends BaseController {
         return ResponseUtil.success(news);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/available")
     public ResponseEntity<List<News>> getAvailableWebsiteNews() {
         List<News> newsList = newsService.getAvailableWebsiteNews();

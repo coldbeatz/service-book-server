@@ -54,10 +54,10 @@ public class JwtAuthenticationFilter implements Filter {
         var email = jwtService.extractUserEmail(jwt);
 
         if (!StringUtils.isEmpty(email) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userService.getUserByEmail(email);
+            User user = userService.findUserByEmail(email).orElse(null);
 
             // Якщо токен валідний, то аутентифікуємо користувача
-            if (jwtService.isTokenValid(jwt, user)) {
+            if (user != null && jwtService.isTokenValid(jwt, user)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
 
                 UsernamePasswordAuthenticationToken authToken =

@@ -45,9 +45,8 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public User getUserByEmail(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        return userOptional.orElse(null);
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public boolean checkUserPassword(User user, String password) {

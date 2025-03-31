@@ -1,7 +1,5 @@
 package servicebook.controllers.user;
 
-import jakarta.mail.MessagingException;
-
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.validator.routines.EmailValidator;
@@ -52,10 +50,9 @@ public class ProfileController extends BaseController {
      *
      * @param request Запит з новими налаштуваннями
      * @return Відповідь про результат оновлення
-     * @throws MessagingException якщо виникла помилка при надсиланні листа
      */
     @PutMapping
-    public ResponseEntity<SettingsResponse> update(@RequestBody UserSettingsRequest request) throws MessagingException {
+    public ResponseEntity<SettingsResponse> update(@RequestBody UserSettingsRequest request) {
         User user = getAuthenticatedUser();
 
         // Запит на зміну електронної адреси користувача
@@ -63,7 +60,7 @@ public class ProfileController extends BaseController {
 
         String desiredEmail = request.getEmail();
         if (!user.getEmail().equals(desiredEmail) && StringUtils.hasText(desiredEmail)) {
-            User userByEmail = userService.getUserByEmail(desiredEmail);
+            User userByEmail = userService.findUserByEmail(desiredEmail).orElse(null);
 
             if (userByEmail != null) {
                 throw new BadRequestException("email_already_registered");

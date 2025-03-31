@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import org.springframework.util.StringUtils;
-
 import org.springframework.web.bind.annotation.*;
 
 import servicebook.controllers.BaseController;
@@ -23,7 +21,6 @@ import servicebook.localization.Localization;
 import servicebook.services.mail.EmailService;
 
 import servicebook.utils.responce.ErrorResponse;
-import servicebook.utils.responce.SuccessResponse;
 
 import java.util.Optional;
 
@@ -77,7 +74,7 @@ public class UserController extends BaseController {
             userRepository.save(user);
             emailService.sendRegistrationConfirmationEmail(user);
 
-            return ResponseEntity.ok(new SuccessResponse());
+            return ResponseEntity.ok().build();
         } catch (ClientException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getCode()));
         } catch (MessagingException e) {

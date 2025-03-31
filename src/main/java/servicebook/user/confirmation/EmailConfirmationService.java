@@ -1,7 +1,6 @@
 package servicebook.user.confirmation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
@@ -23,11 +22,17 @@ public class EmailConfirmationService {
 
     private final UserService userService;
 
-    private final EmailConfirmationRepository emailConfirmationRepository;
+    private final EmailConfirmationRepository repository;
     private final UserRepository userRepository;
 
-    public Optional<EmailConfirmation> getEmailConfirmation(String key) {
-        return emailConfirmationRepository.findByUniqueKey(key);
+    @Transactional
+    public void delete(EmailConfirmation confirmation) {
+        repository.delete(confirmation);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<EmailConfirmation> findByUniqueKey(String key) {
+        return repository.findByUniqueKey(key);
     }
 
     @Transactional
@@ -40,12 +45,13 @@ public class EmailConfirmationService {
             String desiredEmail = confirmation.getDesiredEmail();
 
             if (!user.getEmail().equals(desiredEmail)) {
-                User userByEmail = userService.getUserByEmail(desiredEmail);
+                User userByEmail = userService.findUserByEmail(desiredEmail).orElse(null);
+
                 if (userByEmail == null) {
                     user.setEmail(desiredEmail);
                 } else {
                     // E-mail адресу вже зайнято
-                    emailConfirmationRepository.delete(confirmation);
+                    repository.delete(confirmation);
                     return false;
                 }
             }
@@ -54,7 +60,7 @@ public class EmailConfirmationService {
             user.setConfirmEmail(true);
 
             userRepository.save(user);
-            emailConfirmationRepository.delete(confirmation);
+            repository.delete(confirmation);
             return true;
         }
 
@@ -62,7 +68,7 @@ public class EmailConfirmationService {
     }
 
     public EmailConfirmation createEmailConfirmation(User user, String desiredEmail) {
-        Optional<EmailConfirmation> find = emailConfirmationRepository.findByUser(user);
+        Optional<EmailConfirmation> find = repository.findByUser(user);
 
         EmailConfirmation confirmation;
 
@@ -77,7 +83,7 @@ public class EmailConfirmationService {
         confirmation.setUniqueKey(generateUniqueKey());
         confirmation.setDate(LocalDateTime.now());
 
-        return emailConfirmationRepository.save(confirmation);
+        return repository.save(confirmation);
     }
 
     private String generateUniqueKey() {
@@ -85,7 +91,7 @@ public class EmailConfirmationService {
 
         do {
             key = UniqueKeyGenerator.generateUniqueKey();
-        } while (emailConfirmationRepository.findByUniqueKey(key).isPresent());
+        } while (repository.findByUniqueKey(key).isPresent());
 
         return key;
     }

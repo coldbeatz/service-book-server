@@ -7,10 +7,6 @@ import servicebook.exceptions.ClientException;
 
 public class ResponseUtil {
 
-    public static ResponseEntity<SuccessResponse> success() {
-        return ResponseEntity.ok(new SuccessResponse());
-    }
-
     public static <T> ResponseEntity<T> success(T data) {
         return ResponseEntity.ok(data);
     }

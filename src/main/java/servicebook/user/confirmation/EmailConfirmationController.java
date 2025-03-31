@@ -30,7 +30,7 @@ public class EmailConfirmationController {
 
     @PostMapping(value = "/confirm")
     public ResponseEntity<?> confirm(@RequestBody ConfirmationRequest request) {
-        Optional<EmailConfirmation> confirmation = emailConfirmationService.getEmailConfirmation(request.getKey());
+        Optional<EmailConfirmation> confirmation = emailConfirmationService.findByUniqueKey(request.getKey());
 
         if (confirmation.isPresent() && emailConfirmationService.confirmEmail(confirmation)) {
             User user = confirmation.get().getUser();

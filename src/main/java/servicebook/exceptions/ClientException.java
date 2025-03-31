@@ -3,7 +3,7 @@ package servicebook.exceptions;
 import lombok.Getter;
 
 @Getter
-public class ClientException extends Exception {
+public class ClientException extends RuntimeException {
 
     private final String code;
 

@@ -1,5 +1,9 @@
 package servicebook.exceptions;
 
+import org.springframework.http.HttpStatus;
+
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import servicebook.services.upload.FileUploadService;
 
 /**
@@ -7,6 +11,7 @@ import servicebook.services.upload.FileUploadService;
  *
  * @see FileUploadService
  */
+@ResponseStatus(code = HttpStatus.BAD_GATEWAY)
 public class RemoteFileUploadException extends RuntimeException {
 
     public RemoteFileUploadException(String message) {
