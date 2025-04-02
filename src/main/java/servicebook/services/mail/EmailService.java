@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.mail.MailException;
@@ -37,11 +38,17 @@ public class EmailService {
 
     private final EmailConfirmationService emailConfirmationService;
 
+    private final EmailValidator emailValidator = EmailValidator.getInstance();
+
     @Value("${spring.mail.username}")
     private String fromAddress;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
+
+    public boolean isValid(String email) {
+        return emailValidator.isValid(email);
+    }
 
     /**
      * Викликати при виникненні помилки при відправці e-mail
@@ -136,7 +143,7 @@ public class EmailService {
         sendTemplateMessage(desiredEmail, subject, template, context);
     }
 
-    public void sendRegistrationConfirmationEmail(User user) throws MessagingException {
+    public void sendRegistrationConfirmationEmail(User user) {
         sendRegistrationConfirmationEmail(user, user.getEmail());
     }
 
