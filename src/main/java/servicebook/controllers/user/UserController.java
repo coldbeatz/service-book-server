@@ -96,6 +96,10 @@ public class UserController extends BaseController {
 
         User user = userService.findUserByEmail(email).orElse(null);
 
+        if (password == null) {
+            throw new BadRequestException("incorrect_login_or_password", "Password is invalid");
+        }
+
         if (user == null || !userService.checkUserPassword(user, password)) {
             throw new UnauthorizedException("incorrect_login_or_password", "Incorrect login or password");
         }

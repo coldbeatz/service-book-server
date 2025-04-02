@@ -1,10 +1,8 @@
 package servicebook.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,4 +23,9 @@ public class SettingsResponse {
      * Токен авторизації (якщо пароль користувача був оновлений)
      */
     private String token;
+
+    /**
+     * Пароль було змінено або встановлено
+     */
+    private boolean updatedPassword;
 }

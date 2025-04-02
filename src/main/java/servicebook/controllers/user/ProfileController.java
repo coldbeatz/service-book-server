@@ -100,7 +100,14 @@ public class ProfileController extends BaseController {
             userService.saveOrUpdate(user);
         }
 
-        return ResponseEntity.ok(new SettingsResponse(emailConfirmationSent, userNeedsSave, null));
+        var response = SettingsResponse.builder()
+                .emailConfirmationSent(emailConfirmationSent)
+                .token(null)
+                .userUpdated(userNeedsSave)
+                .updatedPassword(false)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -115,18 +122,28 @@ public class ProfileController extends BaseController {
         String currentPassword = request.getCurrentPassword();
         String newPassword = request.getNewPassword();
 
-        if (!StringUtils.hasText(currentPassword)) {
-            throw new BadRequestException("current_password_empty");
-        }
+        if (user.getPassword() != null) {
+            if (!StringUtils.hasText(currentPassword)) {
+                throw new BadRequestException("current_password_empty");
+            }
 
-        if (!userService.checkUserPassword(user, currentPassword)) {
-            throw new BadRequestException("incorrect_old_password");
+            if (!userService.checkUserPassword(user, currentPassword)) {
+                throw new BadRequestException("incorrect_old_password");
+            }
         }
 
         userService.setPassword(user, newPassword);
         userService.saveOrUpdate(user);
 
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new SettingsResponse(emailConfirmationSent, true, token));
+
+        var response = SettingsResponse.builder()
+                .emailConfirmationSent(emailConfirmationSent)
+                .token(token)
+                .userUpdated(true)
+                .updatedPassword(true)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,6 +1,7 @@
 package servicebook.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -15,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import servicebook.localization.Localization;
+import servicebook.oauth2.AuthProvider;
 import servicebook.user.confirmation.EmailConfirmation;
 
 import servicebook.user.role.Role;
@@ -97,6 +99,25 @@ public class User implements UserDetails {
     @Column(name = "selected_language", nullable = false)
     private Localization localization;
 
+    /**
+     * URL до аватарки користувача (Google profile picture)
+     */
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    /**
+     * Унікальний ID користувача з зовнішнього OAuth-провайдера (наприклад, Google `sub`)
+     */
+    @Column(name = "external_provider_id", unique = true)
+    private String externalProviderId;
+
+    /**
+     * Назва провайдера (наприклад: GOOGLE, FACEBOOK, GITHUB)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    private AuthProvider provider;
+
     @ToString.Exclude
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -106,6 +127,11 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @JsonProperty
+    public boolean passwordIsEmpty() {
+        return password == null;
     }
 
     @JsonIgnore

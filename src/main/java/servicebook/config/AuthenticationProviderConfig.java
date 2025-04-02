@@ -9,8 +9,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import servicebook.user.UserService;
@@ -22,17 +20,6 @@ import servicebook.user.UserService;
 @Configuration
 @RequiredArgsConstructor
 public class AuthenticationProviderConfig {
-
-    /**
-     * Сервіс для роботи з користувачами, який реалізує {@link UserDetailsService}.
-     */
-    private final UserService userService;
-
-    /**
-     * Енкодер паролів, який використовується для порівняння пароля користувача
-     * із збереженим у базі даних закодованим паролем.
-     */
-    private final PasswordEncoder passwordEncoder;
 
     /**
      * Створює та налаштовує об'єкт {@link AuthenticationProvider}, який використовується для перевірки
@@ -47,7 +34,7 @@ public class AuthenticationProviderConfig {
      * @return Налаштований провайдер автентифікації {@link AuthenticationProvider}.
      */
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(userService);

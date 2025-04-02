@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import org.springframework.security.web.SecurityFilterChain;
 
+import servicebook.oauth2.OAuth2SuccessHandler;
 import servicebook.services.jwt.JwtAuthenticationFilter;
 import servicebook.user.UserService;
 import servicebook.user.filter.IpTrackingFilter;
@@ -50,7 +51,12 @@ public class SecurityConfig {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
+    @Value("${app.frontend.oauth2-redirect}")
+    private String oauth2Redirect;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
 
     /**
      * Налаштовує ланцюг безпеки для застосунку.
@@ -69,7 +75,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().permitAll())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .oauth2Login(oauth2 -> oauth2
+                    .defaultSuccessUrl(oauth2Redirect, true)
+                    .successHandler(oauth2SuccessHandler)
+            );
 
         http.addFilterBefore(ipTrackingFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
