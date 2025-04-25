@@ -17,8 +17,6 @@ import servicebook.requests.NewsRequest;
 
 import servicebook.services.NewsService;
 
-import servicebook.utils.responce.ResponseUtil;
-
 import java.time.LocalDateTime;
 
 import java.util.List;
@@ -42,7 +40,7 @@ public class NewsController extends BaseController {
     public ResponseEntity<News> getById(@PathVariable Long id) {
         News news = newsService.getById(id);
 
-        return ResponseUtil.success(news);
+        return ResponseEntity.ok(news);
     }
 
     @GetMapping("/available")

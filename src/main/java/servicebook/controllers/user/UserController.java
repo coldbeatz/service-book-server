@@ -104,6 +104,10 @@ public class UserController extends BaseController {
             throw new UnauthorizedException("incorrect_login_or_password", "Incorrect login or password");
         }
 
+        if (!user.isConfirmEmail()) {
+            throw new BadRequestException("incorrect_login_or_password", "Email not confirmed");
+        }
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         String token = jwtService.generateToken(user);
 

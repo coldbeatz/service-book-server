@@ -99,7 +99,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Встановлює дозволені джерела для CORS-запитів
-        configuration.setAllowedOrigins(List.of(frontendUrl));
+        //configuration.setAllowedOrigins(List.of(frontendUrl));
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         // Встановлює дозволені HTTP-методи для запитів
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
