@@ -15,6 +15,7 @@ import servicebook.resources.Resource;
 
 import servicebook.user.User;
 
+import java.util.List;
 
 /**
  * Автомобіль користувача
@@ -116,6 +117,7 @@ public class UserCar extends AuditableTimeEntity {
     /**
      * Записи користувача до цього автомобіля
      */
-    //@OneToMany(mappedBy = "userCar", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<UserCarNote> notes;
+    @JsonIgnore
+    @OneToMany(mappedBy = "userCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCarNote> notes;
 }

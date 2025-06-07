@@ -63,11 +63,11 @@ public class ProfileController extends BaseController {
             User userByEmail = userService.findUserByEmail(desiredEmail).orElse(null);
 
             if (userByEmail != null) {
-                throw new BadRequestException("email_already_registered");
+                throw new BadRequestException("email_already_registered", "Email already registered");
             }
 
             if (!emailValidator.isValid(desiredEmail)) {
-                throw new BadRequestException("invalid_email");
+                throw new BadRequestException("invalid_email", "Invalid email");
             }
 
             emailService.sendRegistrationConfirmationEmail(user, desiredEmail);
@@ -124,11 +124,11 @@ public class ProfileController extends BaseController {
 
         if (user.getPassword() != null) {
             if (!StringUtils.hasText(currentPassword)) {
-                throw new BadRequestException("current_password_empty");
+                throw new BadRequestException("current_password_empty", "Current password empty");
             }
 
             if (!userService.checkUserPassword(user, currentPassword)) {
-                throw new BadRequestException("incorrect_old_password");
+                throw new BadRequestException("incorrect_old_password", "Incorrect old password");
             }
         }
 

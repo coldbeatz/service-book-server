@@ -135,7 +135,7 @@ public class EmailService {
         Context context = new Context();
 
         context.setVariable("name", user.getFullName());
-        context.setVariable("link", frontendUrl + "/confirmation/" + emailConfirmation.getUniqueKey());
+        context.setVariable("link", frontendUrl + "/en/confirmation/" + emailConfirmation.getUniqueKey());
 
         String subject = "Email confirmation";
         String template = "email-validation-template";
@@ -156,7 +156,7 @@ public class EmailService {
         Context context = new Context();
 
         context.setVariable("name", user.getFullName());
-        context.setVariable("link", frontendUrl + "/restore/" + emailConfirmation.getUniqueKey());
+        context.setVariable("link", frontendUrl + "/en/restore/" + emailConfirmation.getUniqueKey());
 
         String subject = "Account recovery";
         String template = "restore-template";

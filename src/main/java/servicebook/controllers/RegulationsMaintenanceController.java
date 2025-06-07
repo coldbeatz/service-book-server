@@ -1,5 +1,6 @@
 package servicebook.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.thymeleaf.util.StringUtils;
 
+import servicebook.entity.Car;
 import servicebook.entity.maintenance.RegulationsMaintenance;
 import servicebook.entity.maintenance.RegulationsMaintenanceTask;
 
@@ -19,6 +21,7 @@ import servicebook.requests.LocalizedRequest;
 import servicebook.requests.RegulationsMaintenanceRequest;
 import servicebook.requests.RegulationsMaintenanceTaskRequest;
 
+import servicebook.services.CarService;
 import servicebook.services.RegulationsMaintenanceService;
 
 import java.util.List;
@@ -33,6 +36,7 @@ import java.util.List;
 public class RegulationsMaintenanceController extends BaseController {
 
     private final RegulationsMaintenanceService maintenanceService;
+    private final CarService carService;
 
     /**
      * Видаляє регламентне обслуговування за ID.
@@ -132,6 +136,16 @@ public class RegulationsMaintenanceController extends BaseController {
 
         maintenance.setTransmissions(request.getTransmissions());
         maintenance.setFuelTypes(request.getFuelTypes());
+
+        if (request.getCarId() != null) {
+            try {
+                Car car = carService.getCarById(request.getCarId());
+
+                maintenance.setCar(car);
+            } catch (EntityNotFoundException ignored) {
+
+            }
+        }
 
         List<Long> requestTaskIds = request.getTasks().stream()
                 .map(RegulationsMaintenanceTaskRequest::getId)

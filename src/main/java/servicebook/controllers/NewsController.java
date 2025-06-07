@@ -15,7 +15,9 @@ import servicebook.localization.LocalizedString;
 
 import servicebook.requests.NewsRequest;
 
+import servicebook.services.HtmlContentService;
 import servicebook.services.NewsService;
+import servicebook.user.User;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +33,8 @@ import java.util.List;
 public class NewsController extends BaseController {
 
     private final NewsService newsService;
+
+    private final HtmlContentService htmlContentService;
 
     /**
      * Отримати новину за її ID
@@ -107,7 +111,14 @@ public class NewsController extends BaseController {
 
     private void saveOrUpdate(NewsRequest request, News news) {
         request.getTitle().updateLocalizedString(news.getTitle());
-        request.getContent().updateLocalizedString(news.getContent());
+
+        User user = getAuthenticatedUser();
+
+        String prepareContentEn = htmlContentService.processContent(request.getContent().getEn(), user);
+        String prepareContentUa = htmlContentService.processContent(request.getContent().getUa(), user);
+
+        news.getContent().setEn(prepareContentEn);
+        news.getContent().setUa(prepareContentUa);
 
         news.setDelayedPostingDate(request.getDelayedPostingDate());
         news.setPostingOptions(request.getPostingOptions());
